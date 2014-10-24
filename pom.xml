@@ -63,6 +63,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.googlecode.lcm</groupId>
+			<artifactId>lcm-java</artifactId>
+			<version>1.0.0-unofficial</version>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
@@ -135,4 +141,11 @@
 			</build>
 		</profile>
 	</profiles>
+
+	<repositories>
+		<repository>
+			<id>github.ennerf</id>
+			<url>https://raw.github.com/ennerf/mvn-repo/master/releases</url>
+		</repository>
+	</repositories>
 </project>
