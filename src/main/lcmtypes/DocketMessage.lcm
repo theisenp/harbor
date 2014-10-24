@@ -1,0 +1,10 @@
+struct DocketMessage
+{
+    string  id;
+    string  type;
+    string  description;
+
+    int32_t count;
+    string protocols[count];
+    string addresses[count];
+}
