@@ -1,5 +1,8 @@
 package com.theisenp.harbor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.joda.time.Duration;
 
 import com.theisenp.harbor.utils.HarborUtils;
@@ -22,6 +25,8 @@ public class Harbor {
 	private final Duration period;
 	private final Duration timeout;
 
+	private final Set<Listener> listeners = new HashSet<>();
+
 	/**
 	 * @param address
 	 * @param port
@@ -41,6 +46,26 @@ public class Harbor {
 		HarborUtils.validateTtl(ttl);
 		HarborUtils.validatePeriod(period);
 		HarborUtils.validateTimeout(timeout);
+	}
+
+	/**
+	 * Adds the given {@link Listener} to the set of those that will be notified
+	 * when peers change status
+	 * 
+	 * @param listener
+	 */
+	public void addListener(Listener listener) {
+		listeners.add(listener);
+	}
+
+	/**
+	 * Removes the given {@link Listener} from the set of those that will be
+	 * notified when peers change status
+	 * 
+	 * @param listener
+	 */
+	public void removeListener(Listener listener) {
+		listeners.remove(listener);
 	}
 
 	/**
@@ -76,6 +101,42 @@ public class Harbor {
 	 */
 	public Duration getTimeout() {
 		return timeout;
+	}
+
+	/**
+	 * Notifies all registered listeners of the connected peer
+	 */
+	private void notifyPeerConnected(Peer peer) {
+		for(Listener listener : listeners) {
+			listener.onConnected(peer);
+		}
+	}
+
+	/**
+	 * Notifies all registered listeners of the active peer
+	 */
+	private void notifyPeerActive(Peer peer) {
+		for(Listener listener : listeners) {
+			listener.onActive(peer);
+		}
+	}
+
+	/**
+	 * Notifies all registered listeners of the inactive peer
+	 */
+	private void notifyPeerInactive(Peer peer) {
+		for(Listener listener : listeners) {
+			listener.onInactive(peer);
+		}
+	}
+
+	/**
+	 * Notifies all registered listeners of the disconnected peer
+	 */
+	private void notifyPeerDisconnected(Peer peer) {
+		for(Listener listener : listeners) {
+			listener.onDisconnected(peer);
+		}
 	}
 
 	/**
