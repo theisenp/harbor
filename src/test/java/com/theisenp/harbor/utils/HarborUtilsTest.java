@@ -1,9 +1,13 @@
 package com.theisenp.harbor.utils;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import org.joda.time.Duration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.theisenp.harbor.Harbor;
 
 /**
  * Unit tests for {@link HarborUtils}
@@ -11,13 +15,43 @@ import org.junit.rules.ExpectedException;
  * @author patrick.theisen
  */
 public class HarborUtilsTest {
+	private static final String TEST_ADDRESS = Harbor.DEFAULT_ADDRESS;
+	private static final int TEST_PORT = Harbor.DEFAULT_PORT;
+	private static final int TEST_TTL = Harbor.DEFAULT_TTL;
+	private static final Duration TEST_PERIOD = Harbor.DEFAULT_PERIOD;
+	private static final Duration TEST_TIMEOUT = Harbor.DEFAULT_TIMEOUT;
 
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
 
 	@Test
+	public void testToLcmAddress() {
+		String actual = HarborUtils.toLcmAddress(TEST_ADDRESS, TEST_PORT, TEST_TTL);
+		String expected = "udpm://" + TEST_ADDRESS + ":" + TEST_PORT + "?ttl=" + TEST_TTL;
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void testToLcmAddressInvalidAddress() {
+		thrown.expect(IllegalArgumentException.class);
+		HarborUtils.toLcmAddress("invalid", TEST_PORT, TEST_TTL);
+	}
+
+	@Test
+	public void testToLcmAddressInvalidPort() {
+		thrown.expect(IllegalArgumentException.class);
+		HarborUtils.toLcmAddress(TEST_ADDRESS, 0, TEST_TTL);
+	}
+
+	@Test
+	public void testToLcmAddressInvalidTtl() {
+		thrown.expect(IllegalArgumentException.class);
+		HarborUtils.toLcmAddress(TEST_ADDRESS, TEST_PORT, -1);
+	}
+
+	@Test
 	public void testValidateAddress() {
-		HarborUtils.validateAddress("0.0.0.0");
+		HarborUtils.validateAddress(TEST_ADDRESS);
 	}
 
 	@Test
@@ -34,7 +68,7 @@ public class HarborUtilsTest {
 
 	@Test
 	public void testValidatePort() {
-		HarborUtils.validatePort(7667);
+		HarborUtils.validatePort(TEST_PORT);
 	}
 
 	@Test
@@ -51,7 +85,7 @@ public class HarborUtilsTest {
 
 	@Test
 	public void testValidateTtl() {
-		HarborUtils.validateTtl(0);
+		HarborUtils.validateTtl(TEST_TTL);
 	}
 
 	@Test
@@ -62,7 +96,7 @@ public class HarborUtilsTest {
 
 	@Test
 	public void testValidatePeriod() {
-		HarborUtils.validatePeriod(Duration.standardSeconds(1));
+		HarborUtils.validatePeriod(TEST_PERIOD);
 	}
 
 	@Test
@@ -73,7 +107,7 @@ public class HarborUtilsTest {
 
 	@Test
 	public void testValidateTimeout() {
-		HarborUtils.validateTimeout(Duration.standardSeconds(1));
+		HarborUtils.validateTimeout(TEST_TIMEOUT);
 	}
 
 	@Test
