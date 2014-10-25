@@ -12,14 +12,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.theisenp.harbor.Docket.Builder;
+import com.theisenp.harbor.Peer.Builder;
 
 /**
- * Unit tests for {@link Docket}
+ * Unit tests for {@link Peer}
  * 
  * @author patrick.theisen
  */
-public class DocketTest {
+public class PeerTest {
 	private static final String TEST_ID = "test-id";
 	private static final String TEST_TYPE = "test-type";
 	private static final String TEST_DESCRIPTION = "test-description";
@@ -32,37 +32,37 @@ public class DocketTest {
 	@Test
 	public void testConstruct() {
 		Map<String, String> protocols = mockProtocols(10);
-		validate(new Docket(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols), protocols);
+		validate(new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols), protocols);
 	}
 
 	@Test
 	public void testEquals() {
 		Map<String, String> protocols = mockProtocols(10);
-		Docket docket = new Docket(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
 
-		for(Object success : enumerateEqualTo(docket)) {
-			assertThat(docket.equals(success)).isTrue();
-			assertThat(success.equals(docket)).isTrue();
+		for(Object success : enumerateEqualTo(peer)) {
+			assertThat(peer.equals(success)).isTrue();
+			assertThat(success.equals(peer)).isTrue();
 		}
 
-		assertThat(docket.equals(null)).isFalse();
-		for(Object failure : enumerateNotEqualTo(docket)) {
-			assertThat(docket.equals(failure)).isFalse();
-			assertThat(failure.equals(docket)).isFalse();
+		assertThat(peer.equals(null)).isFalse();
+		for(Object failure : enumerateNotEqualTo(peer)) {
+			assertThat(peer.equals(failure)).isFalse();
+			assertThat(failure.equals(peer)).isFalse();
 		}
 	}
 
 	@Test
 	public void testHashCode() {
 		Map<String, String> protocols = mockProtocols(10);
-		Docket docket = new Docket(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
 
-		for(Object success : enumerateEqualTo(docket)) {
-			assertThat(docket.hashCode()).isEqualTo(success.hashCode());
+		for(Object success : enumerateEqualTo(peer)) {
+			assertThat(peer.hashCode()).isEqualTo(success.hashCode());
 		}
 
-		for(Object failure : enumerateNotEqualTo(docket)) {
-			assertThat(docket.hashCode()).isNotEqualTo(failure.hashCode());
+		for(Object failure : enumerateNotEqualTo(peer)) {
+			assertThat(peer.hashCode()).isNotEqualTo(failure.hashCode());
 		}
 	}
 
@@ -80,7 +80,7 @@ public class DocketTest {
 	@Test
 	public void testBuildCopy() {
 		Map<String, String> protocols = mockProtocols(10);
-		Docket original = new Docket(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer original = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
 		validate(new Builder(original).build(), protocols);
 	}
 
@@ -219,33 +219,33 @@ public class DocketTest {
 	}
 
 	/**
-	 * @param docket
+	 * @param peer
 	 * @return A list of objects expected to compare equal to the given
-	 * {@link Docket}
+	 * {@link Peer}
 	 */
-	private static List<Object> enumerateEqualTo(Docket docket) {
+	private static List<Object> enumerateEqualTo(Peer peer) {
 		List<Object> result = new ArrayList<>();
-		result.add(docket);
-		result.add(new Builder(docket).build());
+		result.add(peer);
+		result.add(new Builder(peer).build());
 		return result;
 	}
 
 	/**
-	 * @param docket
+	 * @param peer
 	 * @return A list of objects expected to compare not equal to the given
-	 * {@link Docket}
+	 * {@link Peer}
 	 */
-	private static List<Object> enumerateNotEqualTo(Docket docket) {
-		String wrongId = docket.getId() + "-wrong";
-		String wrongType = docket.getType() + "-wrong";
-		String wrongDescription = docket.getDescription() + "-wrong";
+	private static List<Object> enumerateNotEqualTo(Peer peer) {
+		String wrongId = peer.getId() + "-wrong";
+		String wrongType = peer.getType() + "-wrong";
+		String wrongDescription = peer.getDescription() + "-wrong";
 
 		List<Object> result = new ArrayList<>();
 		result.add(new Object());
-		result.add(new Builder(docket).id(wrongId).build());
-		result.add(new Builder(docket).type(wrongType).build());
-		result.add(new Builder(docket).description(wrongDescription).build());
-		result.add(new Builder(docket).protocol("wrong-protocol", "wrong-address").build());
+		result.add(new Builder(peer).id(wrongId).build());
+		result.add(new Builder(peer).type(wrongType).build());
+		result.add(new Builder(peer).description(wrongDescription).build());
+		result.add(new Builder(peer).protocol("wrong-protocol", "wrong-address").build());
 		return result;
 	}
 
@@ -273,15 +273,15 @@ public class DocketTest {
 	}
 
 	/**
-	 * Verifies that the given {@link Docket} contains the expected test data
+	 * Verifies that the given {@link Peer} contains the expected test data
 	 * 
-	 * @param docket
+	 * @param peer
 	 * @param protocols
 	 */
-	private static void validate(Docket docket, Map<String, String> protocols) {
-		assertThat(docket.getId()).isEqualTo(TEST_ID);
-		assertThat(docket.getType()).isEqualTo(TEST_TYPE);
-		assertThat(docket.getDescription()).isEqualTo(TEST_DESCRIPTION);
-		assertThat(docket.getProtocols()).isEqualTo(protocols);
+	private static void validate(Peer peer, Map<String, String> protocols) {
+		assertThat(peer.getId()).isEqualTo(TEST_ID);
+		assertThat(peer.getType()).isEqualTo(TEST_TYPE);
+		assertThat(peer.getDescription()).isEqualTo(TEST_DESCRIPTION);
+		assertThat(peer.getProtocols()).isEqualTo(protocols);
 	}
 }

@@ -75,7 +75,7 @@
 									<arg value="target/generated-sources/java" />
 									<arg value="--jdefaultpkg" />
 									<arg value="com.theisenp.harbor.lcmtypes" />
-									<arg value="src/main/lcmtypes/DocketMessage.lcm" />
+									<arg value="src/main/lcmtypes/PeerMessage.lcm" />
 								</exec>
 							</target>
 						</configuration>

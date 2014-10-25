@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
  * 
  * @author patrick.theisen
  */
-public class Docket {
+public class Peer {
 	private static final String PATTERN = "%s [%s - %s]: {%s}";
 
 	private final String id;
@@ -28,7 +28,7 @@ public class Docket {
 	 * @param description
 	 * @param protocols
 	 */
-	public Docket(String id, String type, String description, Map<String, String> protocols) {
+	public Peer(String id, String type, String description, Map<String, String> protocols) {
 		this.id = id;
 		this.type = type;
 		this.description = description;
@@ -65,11 +65,11 @@ public class Docket {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null || !(obj instanceof Docket)) {
+		if(obj == null || !(obj instanceof Peer)) {
 			return false;
 		}
 
-		Docket other = (Docket) obj;
+		Peer other = (Peer) obj;
 		EqualsBuilder builder = new EqualsBuilder();
 		builder.append(id, other.id);
 		builder.append(type, other.type);
@@ -106,7 +106,7 @@ public class Docket {
 	}
 
 	/**
-	 * A fluent builder for {@link Docket}
+	 * A fluent builder for {@link Peer}
 	 * 
 	 * @author patrick.theisen
 	 */
@@ -125,7 +125,7 @@ public class Docket {
 		/**
 		 * @param other
 		 */
-		public Builder(Docket other) {
+		public Builder(Peer other) {
 			this.id = other.id;
 			this.type = other.type;
 			this.description = other.description;
@@ -202,15 +202,15 @@ public class Docket {
 		}
 
 		/**
-		 * @return A {@link Docket} built from the current state
+		 * @return A {@link Peer} built from the current state
 		 */
-		public Docket build() {
+		public Peer build() {
 			validate();
-			return new Docket(id, type, description, protocols);
+			return new Peer(id, type, description, protocols);
 		}
 
 		/**
-		 * Verifies that a valid {@link Docket} can be produced from the current
+		 * Verifies that a valid {@link Peer} can be produced from the current
 		 * state
 		 */
 		private void validate() {

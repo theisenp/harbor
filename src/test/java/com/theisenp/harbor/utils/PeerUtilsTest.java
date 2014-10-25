@@ -8,16 +8,16 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 
-import com.theisenp.harbor.Docket;
-import com.theisenp.harbor.Docket.Builder;
-import com.theisenp.harbor.lcmtypes.DocketMessage;
+import com.theisenp.harbor.Peer;
+import com.theisenp.harbor.Peer.Builder;
+import com.theisenp.harbor.lcmtypes.PeerMessage;
 
 /**
- * Unit tests for {@link DocketUtils}
+ * Unit tests for {@link PeerUtils}
  * 
  * @author patrick.theisen
  */
-public class DocketUtilsTest {
+public class PeerUtilsTest {
 	private static final String TEST_ID = "test-id";
 	private static final String TEST_TYPE = "test-type";
 	private static final String TEST_DESCRIPTION = "test-description";
@@ -28,21 +28,21 @@ public class DocketUtilsTest {
 
 	@Test
 	public void testFromMessage() {
-		assertThat(DocketUtils.fromMessage(mockDocketMessage())).isEqualTo(mockDocket());
+		assertThat(PeerUtils.fromMessage(mockPeerMessage())).isEqualTo(mockPeer());
 	}
 
 	@Test
 	public void testToMessage() {
-		assertThat(equals(DocketUtils.toMessage(mockDocket()), mockDocketMessage())).isTrue();
+		assertThat(equals(PeerUtils.toMessage(mockPeer()), mockPeerMessage())).isTrue();
 	}
 
 	/**
 	 * @param actual
 	 * @param expected
-	 * @return True if the given {@link DocketMessage} is equal to the expected
+	 * @return True if the given {@link PeerMessage} is equal to the expected
 	 * one. The comparison ignores the order of protocols.
 	 */
-	private static boolean equals(DocketMessage actual, DocketMessage expected) {
+	private static boolean equals(PeerMessage actual, PeerMessage expected) {
 		// Check the fixed size fileds
 		EqualsBuilder builder = new EqualsBuilder();
 		builder.append(actual.id, expected.id);
@@ -64,10 +64,10 @@ public class DocketUtilsTest {
 	}
 
 	/**
-	 * @return A {@link Docket} generated from the test data
+	 * @return A {@link Peer} generated from the test data
 	 */
-	private static Docket mockDocket() {
-		Builder builder = new Docket.Builder();
+	private static Peer mockPeer() {
+		Builder builder = new Peer.Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
 		builder.description(TEST_DESCRIPTION);
@@ -77,10 +77,10 @@ public class DocketUtilsTest {
 	}
 
 	/**
-	 * @return A {@link DocketMessage} generated from the test data
+	 * @return A {@link PeerMessage} generated from the test data
 	 */
-	private static DocketMessage mockDocketMessage() {
-		DocketMessage result = new DocketMessage();
+	private static PeerMessage mockPeerMessage() {
+		PeerMessage result = new PeerMessage();
 		result.id = TEST_ID;
 		result.type = TEST_TYPE;
 		result.description = TEST_DESCRIPTION;

@@ -193,7 +193,7 @@ public class Harbor {
 		 * 
 		 * @param peer
 		 */
-		public void onConnected(Docket peer);
+		public void onConnected(Peer peer);
 
 		/**
 		 * Called when a peer becomes active (either because it has just
@@ -201,20 +201,20 @@ public class Harbor {
 		 * 
 		 * @param peer
 		 */
-		public void onActive(Docket peer);
+		public void onActive(Peer peer);
 
 		/**
 		 * Called when a peer becomes inactive
 		 * 
 		 * @param peer
 		 */
-		public void onInactive(Docket peer);
+		public void onInactive(Peer peer);
 
 		/**
 		 * Called when a peer times out and disconnects
 		 * 
 		 * @param peer
 		 */
-		public void onDisconnected(Docket peer);
+		public void onDisconnected(Peer peer);
 	}
 }

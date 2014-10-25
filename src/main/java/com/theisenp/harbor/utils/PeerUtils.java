@@ -3,22 +3,22 @@ package com.theisenp.harbor.utils;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.theisenp.harbor.Docket;
-import com.theisenp.harbor.Docket.Builder;
-import com.theisenp.harbor.lcmtypes.DocketMessage;
+import com.theisenp.harbor.Peer;
+import com.theisenp.harbor.Peer.Builder;
+import com.theisenp.harbor.lcmtypes.PeerMessage;
 
 /**
- * A collection of {@link Docket} related static utilities
+ * A collection of {@link Peer} related static utilities
  * 
  * @author patrick.theisen
  */
-public class DocketUtils {
+public class PeerUtils {
 
 	/**
-	 * @param docket
-	 * @return A {@link Docket} built from the given {@link DocketMessage}
+	 * @param peer
+	 * @return A {@link Peer} built from the given {@link PeerMessage}
 	 */
-	public static Docket fromMessage(DocketMessage message) {
+	public static Peer fromMessage(PeerMessage message) {
 		Builder builder = new Builder();
 		builder.id(message.id);
 		builder.type(message.type);
@@ -30,16 +30,16 @@ public class DocketUtils {
 	}
 
 	/**
-	 * @param docket
-	 * @return A {@link DocketMessage} built from the given {@link Docket}
+	 * @param peer
+	 * @return A {@link PeerMessage} built from the given {@link Peer}
 	 */
-	public static DocketMessage toMessage(Docket docket) {
-		DocketMessage message = new DocketMessage();
-		message.id = docket.getId();
-		message.type = docket.getType();
-		message.description = docket.getDescription();
+	public static PeerMessage toMessage(Peer peer) {
+		PeerMessage message = new PeerMessage();
+		message.id = peer.getId();
+		message.type = peer.getType();
+		message.description = peer.getDescription();
 
-		Map<String, String> protocols = docket.getProtocols();
+		Map<String, String> protocols = peer.getProtocols();
 		message.count = protocols.size();
 		message.protocols = new String[message.count];
 		message.addresses = new String[message.count];
