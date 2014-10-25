@@ -21,12 +21,6 @@ public class HarborUtilsTest {
 	}
 
 	@Test
-	public void testValidateAddressNull() {
-		thrown.expect(IllegalArgumentException.class);
-		HarborUtils.validateAddress(null);
-	}
-
-	@Test
 	public void testValidateAddressInvalidFormat() {
 		thrown.expect(IllegalArgumentException.class);
 		HarborUtils.validateAddress("invalid");

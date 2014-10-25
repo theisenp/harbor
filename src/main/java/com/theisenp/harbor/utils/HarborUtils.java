@@ -23,12 +23,6 @@ public class HarborUtils {
 	 * @param address
 	 */
 	public static void validateAddress(String address) {
-		// Check for null addresses
-		if(address == null) {
-			String message = "The address must not be null";
-			throw new IllegalArgumentException(message);
-		}
-
 		// Check for improperly formatted addresses
 		Matcher matcher = ADDRESS_PATTERN.matcher(address);
 		if(!matcher.matches()) {
