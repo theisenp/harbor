@@ -180,4 +180,41 @@ public class Harbor {
 			return new Harbor(address, port, ttl, period, timeout);
 		}
 	}
+
+	/**
+	 * A collection of {@link Harbor} related callbacks
+	 * 
+	 * @author patrick.theisen
+	 */
+	public static interface Listener {
+
+		/**
+		 * Called when a new peer connects
+		 * 
+		 * @param peer
+		 */
+		public void onConnected(Docket peer);
+
+		/**
+		 * Called when a peer becomes active (either because it has just
+		 * connected or because it was previously inactive)
+		 * 
+		 * @param peer
+		 */
+		public void onActive(Docket peer);
+
+		/**
+		 * Called when a peer becomes inactive
+		 * 
+		 * @param peer
+		 */
+		public void onInactive(Docket peer);
+
+		/**
+		 * Called when a peer times out and disconnects
+		 * 
+		 * @param peer
+		 */
+		public void onDisconnected(Docket peer);
+	}
 }
