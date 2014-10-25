@@ -5,6 +5,8 @@ import static java.util.regex.Pattern.compile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.joda.time.Duration;
+
 import com.theisenp.harbor.Harbor;
 
 /**
@@ -64,6 +66,30 @@ public class HarborUtils {
 	public static void validateTtl(int ttl) {
 		if(ttl < 0) {
 			String message = "The TTL must be >= 0";
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	/**
+	 * Verifies that the given period is valid
+	 * 
+	 * @param period
+	 */
+	public static void validatePeriod(Duration period) {
+		if(period.getMillis() < 1) {
+			String message = "The period must be >= 1 millisecond";
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	/**
+	 * Verifies that the given timeout is valid
+	 * 
+	 * @param timeout
+	 */
+	public static void validateTimeout(Duration timeout) {
+		if(timeout.getMillis() < 1) {
+			String message = "The timeout must be >= 1 millisecond";
 			throw new IllegalArgumentException(message);
 		}
 	}

@@ -1,5 +1,6 @@
 package com.theisenp.harbor.utils;
 
+import org.joda.time.Duration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,5 +64,27 @@ public class HarborUtilsTest {
 	public void testValidateTtlInvalid() {
 		thrown.expect(IllegalArgumentException.class);
 		HarborUtils.validateTtl(-1);
+	}
+
+	@Test
+	public void testValidatePeriod() {
+		HarborUtils.validatePeriod(Duration.standardSeconds(1));
+	}
+
+	@Test
+	public void testValidatePeriodInvalid() {
+		thrown.expect(IllegalArgumentException.class);
+		HarborUtils.validatePeriod(Duration.standardSeconds(0));
+	}
+
+	@Test
+	public void testValidateTimeout() {
+		HarborUtils.validateTimeout(Duration.standardSeconds(1));
+	}
+
+	@Test
+	public void testValidateTimeoutInvalid() {
+		thrown.expect(IllegalArgumentException.class);
+		HarborUtils.validateTimeout(Duration.standardSeconds(0));
 	}
 }
