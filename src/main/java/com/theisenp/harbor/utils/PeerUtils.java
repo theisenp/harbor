@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.theisenp.harbor.Peer;
 import com.theisenp.harbor.Peer.Builder;
+import com.theisenp.harbor.Peer.Status;
 import com.theisenp.harbor.lcmtypes.PeerMessage;
 
 /**
@@ -15,13 +16,16 @@ import com.theisenp.harbor.lcmtypes.PeerMessage;
 public class PeerUtils {
 
 	/**
-	 * @param peer
-	 * @return A {@link Peer} built from the given {@link PeerMessage}
+	 * @param message
+	 * @param status
+	 * @return A {@link Peer} built from the given {@link PeerMessage} and
+	 * {@link Status}
 	 */
-	public static Peer fromMessage(PeerMessage message) {
+	public static Peer fromMessage(PeerMessage message, Status status) {
 		Builder builder = new Builder();
 		builder.id(message.id);
 		builder.type(message.type);
+		builder.status(status);
 		builder.description(message.description);
 		for(int i = 0; i < message.count; i++) {
 			builder.protocol(message.protocols[i], message.addresses[i]);

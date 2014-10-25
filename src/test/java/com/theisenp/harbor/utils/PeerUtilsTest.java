@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.theisenp.harbor.Peer;
 import com.theisenp.harbor.Peer.Builder;
+import com.theisenp.harbor.Peer.Status;
 import com.theisenp.harbor.lcmtypes.PeerMessage;
 
 /**
@@ -20,6 +21,7 @@ import com.theisenp.harbor.lcmtypes.PeerMessage;
 public class PeerUtilsTest {
 	private static final String TEST_ID = "test-id";
 	private static final String TEST_TYPE = "test-type";
+	private static final Status TEST_STATUS = Status.CONNECTED;
 	private static final String TEST_DESCRIPTION = "test-description";
 	private static final String TEST_FIRST_PROTOCOL = "test-protocol-1";
 	private static final String TEST_FIRST_ADDRESS = "test-address-1";
@@ -28,7 +30,7 @@ public class PeerUtilsTest {
 
 	@Test
 	public void testFromMessage() {
-		assertThat(PeerUtils.fromMessage(mockPeerMessage())).isEqualTo(mockPeer());
+		assertThat(PeerUtils.fromMessage(mockPeerMessage(), TEST_STATUS)).isEqualTo(mockPeer());
 	}
 
 	@Test
@@ -70,6 +72,7 @@ public class PeerUtilsTest {
 		Builder builder = new Peer.Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocol(TEST_FIRST_PROTOCOL, TEST_FIRST_ADDRESS);
 		builder.protocol(TEST_SECOND_PROTOCOL, TEST_SECOND_ADDRESS);
