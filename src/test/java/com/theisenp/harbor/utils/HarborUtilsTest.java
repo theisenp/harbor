@@ -74,7 +74,7 @@ public class HarborUtilsTest {
 	@Test
 	public void testValidatePeriodInvalid() {
 		thrown.expect(IllegalArgumentException.class);
-		HarborUtils.validatePeriod(Duration.standardSeconds(0));
+		HarborUtils.validatePeriod(Duration.ZERO);
 	}
 
 	@Test
@@ -85,6 +85,6 @@ public class HarborUtilsTest {
 	@Test
 	public void testValidateTimeoutInvalid() {
 		thrown.expect(IllegalArgumentException.class);
-		HarborUtils.validateTimeout(Duration.standardSeconds(0));
+		HarborUtils.validateTimeout(Duration.ZERO);
 	}
 }

@@ -76,8 +76,8 @@ public class HarborUtils {
 	 * @param period
 	 */
 	public static void validatePeriod(Duration period) {
-		if(period.getMillis() < 1) {
-			String message = "The period must be >= 1 millisecond";
+		if(period.equals(Duration.ZERO)) {
+			String message = "The period must be nonzero";
 			throw new IllegalArgumentException(message);
 		}
 	}
@@ -88,8 +88,8 @@ public class HarborUtils {
 	 * @param timeout
 	 */
 	public static void validateTimeout(Duration timeout) {
-		if(timeout.getMillis() < 1) {
-			String message = "The timeout must be >= 1 millisecond";
+		if(timeout.equals(Duration.ZERO)) {
+			String message = "The timeout must be nonzero";
 			throw new IllegalArgumentException(message);
 		}
 	}
