@@ -15,10 +15,11 @@ import com.google.common.collect.ImmutableMap;
  * @author patrick.theisen
  */
 public class Peer {
-	private static final String PATTERN = "%s [%s - %s]: {%s}";
+	private static final String PATTERN = "%s, %s, %s, %s: {%s}";
 
 	private final String id;
 	private final String type;
+	private final Status status;
 	private final String description;
 	private final ImmutableMap<String, String> protocols;
 
@@ -26,12 +27,15 @@ public class Peer {
 	 * @param id
 	 * @param type
 	 * @param description
+	 * @param status
 	 * @param protocols
 	 */
-	public Peer(String id, String type, String description, Map<String, String> protocols) {
+	public Peer(String id, String type, Status status, String description,
+			Map<String, String> protocols) {
 		this.id = id;
 		this.type = type;
 		this.description = description;
+		this.status = status;
 		this.protocols = ImmutableMap.copyOf(protocols);
 	}
 
@@ -47,6 +51,13 @@ public class Peer {
 	 */
 	public String getType() {
 		return type;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Status getStatus() {
+		return status;
 	}
 
 	/**
@@ -73,6 +84,7 @@ public class Peer {
 		EqualsBuilder builder = new EqualsBuilder();
 		builder.append(id, other.id);
 		builder.append(type, other.type);
+		builder.append(status, other.status);
 		builder.append(description, other.description);
 		builder.append(protocols, other.protocols);
 		return builder.isEquals();
@@ -83,6 +95,7 @@ public class Peer {
 		HashCodeBuilder builder = new HashCodeBuilder();
 		builder.append(id);
 		builder.append(type);
+		builder.append(status);
 		builder.append(description);
 		builder.append(protocols);
 		return builder.toHashCode();
@@ -102,7 +115,7 @@ public class Peer {
 				builder.append(", ");
 			}
 		}
-		return String.format(PATTERN, id, type, description, builder.toString());
+		return String.format(PATTERN, id, type, status, description, builder.toString());
 	}
 
 	/**
@@ -113,6 +126,7 @@ public class Peer {
 	public static class Builder {
 		private String id;
 		private String type;
+		private Status status;
 		private String description = "";
 		private Map<String, String> protocols = new HashMap<>();
 
@@ -128,6 +142,7 @@ public class Peer {
 		public Builder(Peer other) {
 			this.id = other.id;
 			this.type = other.type;
+			this.status = other.status;
 			this.description = other.description;
 			this.protocols.putAll(other.protocols);
 		}
@@ -147,6 +162,15 @@ public class Peer {
 		 */
 		public Builder type(String type) {
 			this.type = type;
+			return this;
+		}
+		
+		/**
+		 * @param status
+		 * @return This instance
+		 */
+		public Builder status(Status status) {
+			this.status = status;
 			return this;
 		}
 
@@ -186,6 +210,7 @@ public class Peer {
 		public Builder reset() {
 			this.id = null;
 			this.type = null;
+			this.status = null;
 			this.description = "";
 			this.protocols.clear();
 			return this;
@@ -206,7 +231,7 @@ public class Peer {
 		 */
 		public Peer build() {
 			validate();
-			return new Peer(id, type, description, protocols);
+			return new Peer(id, type, status, description, protocols);
 		}
 
 		/**
@@ -225,6 +250,12 @@ public class Peer {
 				String message = "You must provide a type";
 				throw new IllegalStateException(message);
 			}
+			
+			// Check the status
+			if(status == null) {
+				String message = "You must provide a status";
+				throw new IllegalStateException(message);
+			}
 
 			// Check the description
 			if(description == null) {
@@ -232,5 +263,14 @@ public class Peer {
 				throw new IllegalStateException(message);
 			}
 		}
+	}
+
+	/**
+	 * The supported {@link Peer} statuses
+	 * 
+	 * @author patrick.theisen
+	 */
+	public static enum Status {
+		CONNECTED, ACTIVE, INACTIVE, DISCONNECTED;
 	}
 }

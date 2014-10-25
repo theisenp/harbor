@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.theisenp.harbor.Peer.Builder;
+import com.theisenp.harbor.Peer.Status;
 
 /**
  * Unit tests for {@link Peer}
@@ -22,6 +23,7 @@ import com.theisenp.harbor.Peer.Builder;
 public class PeerTest {
 	private static final String TEST_ID = "test-id";
 	private static final String TEST_TYPE = "test-type";
+	private static final Status TEST_STATUS = Status.CONNECTED;
 	private static final String TEST_DESCRIPTION = "test-description";
 	private static final String TEST_PROTOCOL = "test-protocol";
 	private static final String TEST_ADDRESS = "test-address";
@@ -32,13 +34,13 @@ public class PeerTest {
 	@Test
 	public void testConstruct() {
 		Map<String, String> protocols = mockProtocols(10);
-		validate(new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols), protocols);
+		validate(new Peer(TEST_ID, TEST_TYPE, TEST_STATUS, TEST_DESCRIPTION, protocols), protocols);
 	}
 
 	@Test
 	public void testEquals() {
 		Map<String, String> protocols = mockProtocols(10);
-		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_STATUS, TEST_DESCRIPTION, protocols);
 
 		for(Object success : enumerateEqualTo(peer)) {
 			assertThat(peer.equals(success)).isTrue();
@@ -55,7 +57,7 @@ public class PeerTest {
 	@Test
 	public void testHashCode() {
 		Map<String, String> protocols = mockProtocols(10);
-		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer peer = new Peer(TEST_ID, TEST_TYPE, TEST_STATUS, TEST_DESCRIPTION, protocols);
 
 		for(Object success : enumerateEqualTo(peer)) {
 			assertThat(peer.hashCode()).isEqualTo(success.hashCode());
@@ -72,6 +74,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocols(protocols);
 		validate(builder.build(), protocols);
@@ -80,7 +83,7 @@ public class PeerTest {
 	@Test
 	public void testBuildCopy() {
 		Map<String, String> protocols = mockProtocols(10);
-		Peer original = new Peer(TEST_ID, TEST_TYPE, TEST_DESCRIPTION, protocols);
+		Peer original = new Peer(TEST_ID, TEST_TYPE, TEST_STATUS, TEST_DESCRIPTION, protocols);
 		validate(new Builder(original).build(), protocols);
 	}
 
@@ -89,6 +92,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 
 		Map<String, String> protocols = mockProtocols(1);
@@ -104,6 +108,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 
 		Map<String, String> protocols = mockProtocols(10);
@@ -119,6 +124,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 
 		Map<String, String> protocols = mockProtocols(10);
@@ -132,6 +138,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 
 		Map<String, String> protocols = mockProtocols(10);
@@ -146,6 +153,7 @@ public class PeerTest {
 	public void testBuildWithoutId() {
 		Builder builder = new Builder();
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocols(mockProtocols(10));
 
@@ -157,6 +165,19 @@ public class PeerTest {
 	public void testBuildWithoutType() {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
+		builder.status(TEST_STATUS);
+		builder.description(TEST_DESCRIPTION);
+		builder.protocols(mockProtocols(10));
+
+		thrown.expect(IllegalStateException.class);
+		builder.build();
+	}
+
+	@Test
+	public void testBuildWithoutStatus() {
+		Builder builder = new Builder();
+		builder.id(TEST_ID);
+		builder.type(TEST_TYPE);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocols(mockProtocols(10));
 
@@ -169,6 +190,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.protocols(mockProtocols(10));
 		assertThat(builder.build().getDescription()).isEmpty();
 	}
@@ -178,6 +200,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(null);
 		builder.protocols(mockProtocols(10));
 
@@ -190,6 +213,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		assertThat(builder.build().getProtocols()).isEmpty();
 	}
@@ -199,6 +223,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocols(mockProtocols(10));
 		builder.reset();
@@ -212,6 +237,7 @@ public class PeerTest {
 		Builder builder = new Builder();
 		builder.id(TEST_ID);
 		builder.type(TEST_TYPE);
+		builder.status(TEST_STATUS);
 		builder.description(TEST_DESCRIPTION);
 		builder.protocols(mockProtocols(10));
 		builder.resetProtocols();
@@ -238,12 +264,14 @@ public class PeerTest {
 	private static List<Object> enumerateNotEqualTo(Peer peer) {
 		String wrongId = peer.getId() + "-wrong";
 		String wrongType = peer.getType() + "-wrong";
+		Status wrongStatus = peer.getStatus() == Status.ACTIVE ? Status.INACTIVE : Status.ACTIVE;
 		String wrongDescription = peer.getDescription() + "-wrong";
 
 		List<Object> result = new ArrayList<>();
 		result.add(new Object());
 		result.add(new Builder(peer).id(wrongId).build());
 		result.add(new Builder(peer).type(wrongType).build());
+		result.add(new Builder(peer).status(wrongStatus).build());
 		result.add(new Builder(peer).description(wrongDescription).build());
 		result.add(new Builder(peer).protocol("wrong-protocol", "wrong-address").build());
 		return result;
@@ -281,6 +309,7 @@ public class PeerTest {
 	private static void validate(Peer peer, Map<String, String> protocols) {
 		assertThat(peer.getId()).isEqualTo(TEST_ID);
 		assertThat(peer.getType()).isEqualTo(TEST_TYPE);
+		assertThat(peer.getStatus()).isEqualTo(TEST_STATUS);
 		assertThat(peer.getDescription()).isEqualTo(TEST_DESCRIPTION);
 		assertThat(peer.getProtocols()).isEqualTo(protocols);
 	}
