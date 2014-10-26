@@ -143,7 +143,7 @@ public class Harbor {
 	 */
 	public void close() {
 		Futures.transform(lcm, new Unsubscribe(subscriber));
-		// TODO: Remove all peers
+		subscriber.clear();
 		publisher.cancel(true);
 	}
 

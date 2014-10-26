@@ -65,6 +65,19 @@ public class Subscriber implements LCMSubscriber {
 		listeners.remove(listener);
 	}
 
+	/**
+	 * Clear all known peers
+	 */
+	public void clear() {
+		synchronized(peers) {
+			peers.clear();
+			for(Future<?> timeout : timeouts.values()) {
+				timeout.cancel(true);
+			}
+			timeouts.clear();
+		}
+	}
+
 	@Override
 	public void messageReceived(LCM lcm, String channel, LCMDataInputStream stream) {
 		// Check the channel
