@@ -25,7 +25,7 @@ import com.theisenp.harbor.utils.LcmConstants;
 import com.theisenp.harbor.utils.PeerUtils;
 
 /**
- * TODO
+ * An {@link LCMSubscriber} that tracks the states of know peers on the network
  * 
  * @author patrick.theisen
  */
@@ -75,6 +75,15 @@ public class Subscriber implements LCMSubscriber {
 				timeout.cancel(true);
 			}
 			timeouts.clear();
+		}
+	}
+
+	/**
+	 * @return The current set of known peers
+	 */
+	public Set<Peer> getPeers() {
+		synchronized(peers) {
+			return new HashSet<>(peers.values());
 		}
 	}
 

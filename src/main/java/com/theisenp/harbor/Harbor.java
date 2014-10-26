@@ -2,6 +2,9 @@ package com.theisenp.harbor;
 
 import static com.google.common.util.concurrent.MoreExecutors.listeningDecorator;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+
+import java.util.Set;
+
 import lcm.lcm.LCM;
 
 import org.joda.time.Duration;
@@ -33,7 +36,7 @@ public class Harbor {
 	private final int ttl;
 	private final Duration period;
 	private final Duration timeout;
-	private final Peer peer;
+	private final Peer self;
 
 	private final ListeningScheduledExecutorService executor;
 	private final ListenableFuture<LCM> lcm;
@@ -47,13 +50,13 @@ public class Harbor {
 	 * @param periodMillis
 	 * @param timeoutMillis
 	 */
-	public Harbor(String address, int port, int ttl, Duration period, Duration timeout, Peer peer) {
+	public Harbor(String address, int port, int ttl, Duration period, Duration timeout, Peer self) {
 		this.address = address;
 		this.port = port;
 		this.ttl = ttl;
 		this.period = period;
 		this.timeout = timeout;
-		this.peer = peer;
+		this.self = self;
 
 		// Validate the parameters
 		HarborUtils.validateAddress(address);
@@ -126,8 +129,15 @@ public class Harbor {
 	/**
 	 * @return
 	 */
-	public Peer getPeer() {
-		return peer;
+	public Peer getSelf() {
+		return self;
+	}
+
+	/**
+	 * @return The current set of known peers
+	 */
+	public Set<Peer> getPeers() {
+		return subscriber.getPeers();
 	}
 
 	/**
@@ -135,7 +145,7 @@ public class Harbor {
 	 */
 	public void open() {
 		Futures.transform(lcm, new Subscribe(subscriber));
-		publisher = Futures.transform(lcm, new Publisher(executor, period, peer));
+		publisher = Futures.transform(lcm, new Publisher(executor, period, self));
 	}
 
 	/**
@@ -158,7 +168,7 @@ public class Harbor {
 		private int ttl = DEFAULT_TTL;
 		private Duration period = DEFAULT_PERIOD;
 		private Duration timeout = DEFAULT_TIMEOUT;
-		private Peer peer;
+		private Peer self;
 
 		/**
 		 * 
@@ -175,7 +185,7 @@ public class Harbor {
 			this.ttl = other.ttl;
 			this.period = other.period;
 			this.timeout = other.timeout;
-			this.peer = other.peer;
+			this.self = other.self;
 		}
 
 		/**
@@ -229,11 +239,11 @@ public class Harbor {
 		}
 
 		/**
-		 * @param peer
+		 * @param self
 		 * @return This instance
 		 */
-		public Builder peer(Peer peer) {
-			this.peer = peer;
+		public Builder self(Peer self) {
+			this.self = self;
 			return this;
 		}
 
@@ -248,7 +258,7 @@ public class Harbor {
 			ttl = DEFAULT_TTL;
 			period = DEFAULT_PERIOD;
 			timeout = DEFAULT_TIMEOUT;
-			peer = null;
+			self = null;
 			return this;
 		}
 
@@ -259,7 +269,7 @@ public class Harbor {
 		 */
 		public Harbor build() {
 			validate();
-			return new Harbor(address, port, ttl, period, timeout, peer);
+			return new Harbor(address, port, ttl, period, timeout, self);
 		}
 
 		/**
@@ -267,9 +277,9 @@ public class Harbor {
 		 * state
 		 */
 		private void validate() {
-			// Check the peer
-			if(peer == null) {
-				String message = "You must provide a peer";
+			// Check the self peer
+			if(self == null) {
+				String message = "You must provide a self peer";
 				throw new IllegalStateException(message);
 			}
 		}
