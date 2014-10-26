@@ -2,10 +2,6 @@ package com.theisenp.harbor;
 
 import static com.google.common.util.concurrent.MoreExecutors.listeningDecorator;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import lcm.lcm.LCM;
 
 import org.joda.time.Duration;
@@ -39,7 +35,6 @@ public class Harbor {
 	private final Duration timeout;
 	private final Peer peer;
 
-	private final Set<Listener> listeners = new HashSet<>();
 	private final ListeningScheduledExecutorService executor;
 	private final ListenableFuture<LCM> lcm;
 	private final Subscriber subscriber;
@@ -80,7 +75,7 @@ public class Harbor {
 	 * @param listener
 	 */
 	public void addListener(Listener listener) {
-		listeners.add(listener);
+		subscriber.addListener(listener);
 	}
 
 	/**
@@ -90,7 +85,7 @@ public class Harbor {
 	 * @param listener
 	 */
 	public void removeListener(Listener listener) {
-		listeners.remove(listener);
+		subscriber.removeListener(listener);
 	}
 
 	/**
