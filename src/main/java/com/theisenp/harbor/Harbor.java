@@ -40,8 +40,9 @@ public class Harbor {
 
 	private final ListeningScheduledExecutorService executor;
 	private final ListenableFuture<LCM> lcm;
+	private final Publisher publisher;
 	private final Subscriber subscriber;
-	private ListenableFuture<Object> publisher;
+	private ListenableFuture<Object> publishTask;
 
 	/**
 	 * @param address
@@ -68,6 +69,7 @@ public class Harbor {
 		// Initialize the LCM instance on a background thread
 		executor = listeningDecorator(newSingleThreadScheduledExecutor());
 		lcm = executor.submit(new Initialize(address, port, ttl));
+		publisher = new Publisher(executor, period, self);
 		subscriber = new Subscriber(executor, timeout);
 	}
 
@@ -145,7 +147,7 @@ public class Harbor {
 	 */
 	public void open() {
 		Futures.transform(lcm, new Subscribe(subscriber));
-		publisher = Futures.transform(lcm, new Publisher(executor, period, self));
+		publishTask = Futures.transform(lcm, publisher);
 	}
 
 	/**
@@ -154,7 +156,7 @@ public class Harbor {
 	public void close() {
 		Futures.transform(lcm, new Unsubscribe(subscriber));
 		subscriber.clear();
-		publisher.cancel(true);
+		publishTask.cancel(true);
 	}
 
 	/**
