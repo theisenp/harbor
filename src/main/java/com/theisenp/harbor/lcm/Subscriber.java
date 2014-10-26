@@ -131,7 +131,7 @@ public class Subscriber implements LCMSubscriber {
 		String id = peer.getId();
 		peers.put(id, peer);
 		timeouts.put(id, executor.schedule(new Deactivate(id), delay, MILLISECONDS));
-		notifyConnected(peer);
+		notifyConnected(new Builder(peer).status(Status.CONNECTED).build());
 		notifyActive(peer);
 	}
 
