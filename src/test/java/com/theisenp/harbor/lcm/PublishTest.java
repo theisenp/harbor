@@ -14,6 +14,7 @@ import com.theisenp.harbor.Peer;
 import com.theisenp.harbor.Peer.Builder;
 import com.theisenp.harbor.Peer.Status;
 import com.theisenp.harbor.lcmtypes.PeerMessage;
+import com.theisenp.harbor.utils.LcmConstants;
 import com.theisenp.harbor.utils.PeerUtils;
 
 /**
@@ -39,7 +40,7 @@ public class PublishTest {
 		ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<PeerMessage> messageCaptor = ArgumentCaptor.forClass(PeerMessage.class);
 		verify(lcm, times(1)).publish(channelCaptor.capture(), messageCaptor.capture());
-		assertThat(channelCaptor.getValue()).isEqualTo(Publish.CHANNEL);
+		assertThat(channelCaptor.getValue()).isEqualTo(LcmConstants.PEER_CHANNEL);
 		assertThat(messageCaptor.getValue()).isEqualTo(PeerUtils.toMessage(TEST_PEER));
 	}
 }

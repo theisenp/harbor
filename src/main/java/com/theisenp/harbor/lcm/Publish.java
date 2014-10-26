@@ -4,6 +4,7 @@ import lcm.lcm.LCM;
 
 import com.theisenp.harbor.Peer;
 import com.theisenp.harbor.lcmtypes.PeerMessage;
+import com.theisenp.harbor.utils.LcmConstants;
 import com.theisenp.harbor.utils.PeerUtils;
 
 /**
@@ -12,8 +13,6 @@ import com.theisenp.harbor.utils.PeerUtils;
  * @author patrick.theisen
  */
 public class Publish implements Runnable {
-	public static final String CHANNEL = "harbor-peers";
-
 	private final LCM lcm;
 	private final PeerMessage message;
 
@@ -27,6 +26,6 @@ public class Publish implements Runnable {
 
 	@Override
 	public void run() {
-		lcm.publish(CHANNEL, message);
+		lcm.publish(LcmConstants.PEER_CHANNEL, message);
 	}
 }

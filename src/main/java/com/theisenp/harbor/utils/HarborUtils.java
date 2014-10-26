@@ -16,7 +16,6 @@ import com.theisenp.harbor.Harbor;
  */
 public class HarborUtils {
 	private static final Pattern ADDRESS_PATTERN = compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
-	private static final String LCM_ADDRESS_FORMAT = "udpm://%s:%d?ttl=%d";
 
 	/**
 	 * @param address
@@ -29,7 +28,7 @@ public class HarborUtils {
 		validateAddress(address);
 		validatePort(port);
 		validateTtl(ttl);
-		return String.format(LCM_ADDRESS_FORMAT, address, port, ttl);
+		return String.format(LcmConstants.ADDRESS_FORMAT, address, port, ttl);
 	}
 
 	/**
