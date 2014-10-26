@@ -1,7 +1,7 @@
 package com.theisenp.harbor;
 
 import static com.google.common.util.concurrent.MoreExecutors.listeningDecorator;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,9 +10,12 @@ import lcm.lcm.LCM;
 
 import org.joda.time.Duration;
 
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.theisenp.harbor.lcm.InitializeLcm;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.theisenp.harbor.lcm.Initialize;
+import com.theisenp.harbor.lcm.Publisher;
 import com.theisenp.harbor.utils.HarborUtils;
 
 /**
@@ -34,9 +37,10 @@ public class Harbor {
 	private final Duration timeout;
 	private final Peer peer;
 
-	private final ListeningExecutorService executor = listeningDecorator(newSingleThreadExecutor());
 	private final Set<Listener> listeners = new HashSet<>();
+	private final ListeningScheduledExecutorService executor;
 	private final ListenableFuture<LCM> lcm;
+	private ListenableFuture<Object> publisher;
 
 	/**
 	 * @param address
@@ -61,7 +65,8 @@ public class Harbor {
 		HarborUtils.validateTimeout(timeout);
 
 		// Initialize the LCM instance on a background thread
-		lcm = executor.submit(new InitializeLcm(address, port, ttl));
+		executor = listeningDecorator(newSingleThreadScheduledExecutor());
+		lcm = executor.submit(new Initialize(address, port, ttl));
 	}
 
 	/**
@@ -118,7 +123,7 @@ public class Harbor {
 	public Duration getTimeout() {
 		return timeout;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -130,7 +135,8 @@ public class Harbor {
 	 * TODO
 	 */
 	public void open() {
-		// TODO: Kick off publish
+		AsyncFunction<LCM, Object> function = new Publisher(executor, period, peer);
+		publisher = Futures.transform(lcm, function);
 	}
 
 	/**
@@ -138,42 +144,6 @@ public class Harbor {
 	 */
 	public void close() {
 
-	}
-
-	/**
-	 * Notifies all registered listeners of the connected peer
-	 */
-	private void notifyPeerConnected(Peer peer) {
-		for(Listener listener : listeners) {
-			listener.onConnected(peer);
-		}
-	}
-
-	/**
-	 * Notifies all registered listeners of the active peer
-	 */
-	private void notifyPeerActive(Peer peer) {
-		for(Listener listener : listeners) {
-			listener.onActive(peer);
-		}
-	}
-
-	/**
-	 * Notifies all registered listeners of the inactive peer
-	 */
-	private void notifyPeerInactive(Peer peer) {
-		for(Listener listener : listeners) {
-			listener.onInactive(peer);
-		}
-	}
-
-	/**
-	 * Notifies all registered listeners of the disconnected peer
-	 */
-	private void notifyPeerDisconnected(Peer peer) {
-		for(Listener listener : listeners) {
-			listener.onDisconnected(peer);
-		}
 	}
 
 	/**
