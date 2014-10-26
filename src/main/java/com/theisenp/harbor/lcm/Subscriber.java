@@ -100,7 +100,7 @@ public class Subscriber implements LCMSubscriber {
 			handlePeerMessage(new PeerMessage(stream));
 		}
 		catch(IOException exception) {
-			exception.printStackTrace();
+			throw new RuntimeException(exception);
 		}
 	}
 
@@ -113,7 +113,7 @@ public class Subscriber implements LCMSubscriber {
 	private void handlePeerMessage(PeerMessage message) {
 		Peer peer = PeerUtils.fromMessage(message, Status.ACTIVE);
 		synchronized(peers) {
-			if(peers.containsKey(peer.getId())) {
+			if(!peers.containsKey(peer.getId())) {
 				add(peer);
 			}
 			else {
