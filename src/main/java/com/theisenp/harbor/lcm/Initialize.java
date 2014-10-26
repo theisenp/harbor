@@ -11,7 +11,7 @@ import com.theisenp.harbor.utils.HarborUtils;
  * 
  * @author patrick.theisen
  */
-public class InitializeLcm implements Callable<LCM> {
+public class Initialize implements Callable<LCM> {
 	private final String address;
 	private final int port;
 	private final int ttl;
@@ -21,7 +21,7 @@ public class InitializeLcm implements Callable<LCM> {
 	 * @param port
 	 * @param ttl
 	 */
-	public InitializeLcm(String address, int port, int ttl) {
+	public Initialize(String address, int port, int ttl) {
 		this.address = address;
 		this.port = port;
 		this.ttl = ttl;
