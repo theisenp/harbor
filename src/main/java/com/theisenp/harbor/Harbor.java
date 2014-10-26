@@ -322,5 +322,30 @@ public class Harbor {
 		 * @param peer
 		 */
 		public void onDisconnected(Peer peer);
+
+		/**
+		 * An empty implementation of {@link Listener} provided as a convenience
+		 * for clients that only need to handle a subset of the event types
+		 * 
+		 * @author patrick.theisen
+		 */
+		public static abstract class Adapter implements Listener {
+
+			@Override
+			public void onConnected(Peer peer) {
+			}
+
+			@Override
+			public void onActive(Peer peer) {
+			}
+
+			@Override
+			public void onInactive(Peer peer) {
+			}
+
+			@Override
+			public void onDisconnected(Peer peer) {
+			}
+		}
 	}
 }
