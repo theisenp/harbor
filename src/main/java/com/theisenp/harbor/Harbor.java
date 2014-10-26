@@ -10,12 +10,14 @@ import lcm.lcm.LCM;
 
 import org.joda.time.Duration;
 
-import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.theisenp.harbor.lcm.Initialize;
 import com.theisenp.harbor.lcm.Publisher;
+import com.theisenp.harbor.lcm.Subscribe;
+import com.theisenp.harbor.lcm.Subscriber;
+import com.theisenp.harbor.lcm.Unsubscribe;
 import com.theisenp.harbor.utils.HarborUtils;
 
 /**
@@ -40,6 +42,7 @@ public class Harbor {
 	private final Set<Listener> listeners = new HashSet<>();
 	private final ListeningScheduledExecutorService executor;
 	private final ListenableFuture<LCM> lcm;
+	private final Subscriber subscriber;
 	private ListenableFuture<Object> publisher;
 
 	/**
@@ -67,6 +70,7 @@ public class Harbor {
 		// Initialize the LCM instance on a background thread
 		executor = listeningDecorator(newSingleThreadScheduledExecutor());
 		lcm = executor.submit(new Initialize(address, port, ttl));
+		subscriber = new Subscriber(executor, timeout);
 	}
 
 	/**
@@ -132,18 +136,20 @@ public class Harbor {
 	}
 
 	/**
-	 * TODO
+	 * Starts the publish and subscribe tasks
 	 */
 	public void open() {
-		AsyncFunction<LCM, Object> function = new Publisher(executor, period, peer);
-		publisher = Futures.transform(lcm, function);
+		Futures.transform(lcm, new Subscribe(subscriber));
+		publisher = Futures.transform(lcm, new Publisher(executor, period, peer));
 	}
 
 	/**
-	 * TODO
+	 * Stops the publish and subscribe tasks
 	 */
 	public void close() {
-
+		Futures.transform(lcm, new Unsubscribe(subscriber));
+		// TODO: Remove all peers
+		publisher.cancel(true);
 	}
 
 	/**
