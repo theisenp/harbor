@@ -15,7 +15,7 @@ import com.theisenp.harbor.Harbor;
  * @author patrick.theisen
  */
 public class HarborUtils {
-	private static final Pattern ADDRESS_PATTERN = compile("(\\d*)\\.(\\d*)\\.(\\d*)\\.(\\d*)");
+	private static final Pattern ADDRESS_PATTERN = compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
 	private static final String LCM_ADDRESS_FORMAT = "udpm://%s:%d?ttl=%d";
 
 	/**
