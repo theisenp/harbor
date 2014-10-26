@@ -17,7 +17,8 @@ public class Publish implements Runnable {
 	private final PeerMessage message;
 
 	/**
-	 * @param executor
+	 * @param lcm
+	 * @param peer
 	 */
 	public Publish(LCM lcm, Peer peer) {
 		this.lcm = lcm;
