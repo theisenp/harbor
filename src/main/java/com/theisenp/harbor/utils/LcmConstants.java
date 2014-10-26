@@ -7,7 +7,13 @@ import lcm.lcm.LCM;
  * 
  * @author patrick.theisen
  */
-public class LcmConstants {
+public final class LcmConstants {
 	public static final String ADDRESS_FORMAT = "udpm://%s:%d?ttl=%d";
 	public static final String PEER_CHANNEL = "harbor-peers";
+
+	/**
+	 * Private constructor to prevent instantiations/extensions
+	 */
+	private LcmConstants() {
+	}
 }

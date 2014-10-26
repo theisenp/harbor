@@ -13,7 +13,13 @@ import com.theisenp.harbor.lcmtypes.PeerMessage;
  * 
  * @author patrick.theisen
  */
-public class PeerUtils {
+public final class PeerUtils {
+
+	/**
+	 * Private constructor to prevent instantiations/extensions
+	 */
+	private PeerUtils() {
+	}
 
 	/**
 	 * @param message

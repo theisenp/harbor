@@ -14,8 +14,14 @@ import com.theisenp.harbor.Harbor;
  * 
  * @author patrick.theisen
  */
-public class HarborUtils {
+public final class HarborUtils {
 	private static final Pattern ADDRESS_PATTERN = compile("(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+
+	/**
+	 * Private constructor to prevent instantiations/extensions
+	 */
+	public HarborUtils() {
+	}
 
 	/**
 	 * @param address
