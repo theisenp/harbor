@@ -92,7 +92,7 @@ public class Subscriber implements LCMSubscriber {
 		// Check the channel
 		if(!channel.equals(LcmConstants.PEER_CHANNEL)) {
 			String message = "Received message on unexpected channel: " + channel;
-			throw new IllegalStateException(message);
+			throw new RuntimeException(message);
 		}
 
 		// Handle the message
