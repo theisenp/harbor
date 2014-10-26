@@ -1,11 +1,8 @@
 package com.theisenp.harbor.utils;
 
+import static com.theisenp.harbor.test.PeerMessageAssert.assertThat;
 import static org.fest.assertions.Assertions.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 
 import com.theisenp.harbor.Peer;
@@ -35,34 +32,7 @@ public class PeerUtilsTest {
 
 	@Test
 	public void testToMessage() {
-		assertThat(equals(PeerUtils.toMessage(mockPeer()), mockPeerMessage())).isTrue();
-	}
-
-	/**
-	 * @param actual
-	 * @param expected
-	 * @return True if the given {@link PeerMessage} is equal to the expected
-	 * one. The comparison ignores the order of protocols.
-	 */
-	private static boolean equals(PeerMessage actual, PeerMessage expected) {
-		// Check the fixed size fileds
-		EqualsBuilder builder = new EqualsBuilder();
-		builder.append(actual.id, expected.id);
-		builder.append(actual.type, expected.type);
-		builder.append(actual.description, expected.description);
-		builder.append(actual.count, expected.count);
-		if(!builder.isEquals()) {
-			return false;
-		}
-
-		// Check the mapped fields
-		Map<String, String> actualProtocols = new HashMap<>();
-		Map<String, String> expectedProtocols = new HashMap<>();
-		for(int i = 0; i < actual.count; i++) {
-			actualProtocols.put(actual.protocols[i], actual.addresses[i]);
-			expectedProtocols.put(expected.protocols[i], expected.addresses[i]);
-		}
-		return actualProtocols.equals(expectedProtocols);
+		assertThat(PeerUtils.toMessage(mockPeer())).isEqualTo(mockPeerMessage());
 	}
 
 	/**
