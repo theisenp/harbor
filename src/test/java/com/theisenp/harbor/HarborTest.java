@@ -1,6 +1,7 @@
 package com.theisenp.harbor;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import org.joda.time.Duration;
 import org.junit.Rule;
@@ -20,43 +21,44 @@ public class HarborTest {
 	private static final int TEST_TTL = 1;
 	private static final Duration TEST_PERIOD = Duration.standardSeconds(1);
 	private static final Duration TEST_TIMEOUT = Duration.standardSeconds(1);
+	private static final Peer TEST_PEER = mock(Peer.class);
 
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
 
 	@Test
 	public void testConstruct() {
-		validate(new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT));
+		validate(new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT, TEST_PEER));
 	}
 
 	@Test
 	public void testConstructWithInvalidAddress() {
 		thrown.expect(IllegalArgumentException.class);
-		new Harbor("invalid", TEST_PORT, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT);
+		new Harbor("invalid", TEST_PORT, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT, TEST_PEER);
 	}
 
 	@Test
 	public void testConstructWithInvalidPort() {
 		thrown.expect(IllegalArgumentException.class);
-		new Harbor(TEST_ADDRESS, 0, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT);
+		new Harbor(TEST_ADDRESS, 0, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT, TEST_PEER);
 	}
 
 	@Test
 	public void testConstructWithInvalidTtl() {
 		thrown.expect(IllegalArgumentException.class);
-		new Harbor(TEST_ADDRESS, TEST_PORT, -1, TEST_PERIOD, TEST_TIMEOUT);
+		new Harbor(TEST_ADDRESS, TEST_PORT, -1, TEST_PERIOD, TEST_TIMEOUT, TEST_PEER);
 	}
 
 	@Test
 	public void testConstructWithInvalidPeriod() {
 		thrown.expect(IllegalArgumentException.class);
-		new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, Duration.ZERO, TEST_TIMEOUT);
+		new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, Duration.ZERO, TEST_TIMEOUT, TEST_PEER);
 	}
 
 	@Test
 	public void testConstructWithInvalidTimeout() {
 		thrown.expect(IllegalArgumentException.class);
-		new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD, Duration.ZERO);
+		new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD, Duration.ZERO, TEST_PEER);
 	}
 
 	@Test
@@ -67,18 +69,19 @@ public class HarborTest {
 		builder.ttl(TEST_TTL);
 		builder.period(TEST_PERIOD);
 		builder.timeout(TEST_TIMEOUT);
+		builder.peer(TEST_PEER);
 		validate(builder.build());
 	}
 
 	@Test
 	public void testBuildCopy() {
-		Harbor original = new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD, TEST_TIMEOUT);
-		validate(new Builder(original).build());
+		validate(new Builder(new Harbor(TEST_ADDRESS, TEST_PORT, TEST_TTL, TEST_PERIOD,
+				TEST_TIMEOUT, TEST_PEER)).build());
 	}
 
 	@Test
 	public void testBuildDefault() {
-		validateDefault(new Builder().build());
+		validateDefault(new Builder().peer(TEST_PEER).build());
 	}
 
 	@Test
@@ -90,7 +93,7 @@ public class HarborTest {
 		builder.period(TEST_PERIOD);
 		builder.timeout(TEST_TIMEOUT);
 		builder.reset();
-		validateDefault(builder.build());
+		validateDefault(builder.peer(TEST_PEER).build());
 	}
 
 	@Test
@@ -123,6 +126,12 @@ public class HarborTest {
 		new Builder().timeout(Duration.ZERO);
 	}
 
+	@Test
+	public void testBuildWithoutPeer() {
+		thrown.expect(IllegalStateException.class);
+		new Builder().build();
+	}
+
 	/**
 	 * Verify that the given {@link Harbor} has the expected test data
 	 * 
@@ -134,6 +143,7 @@ public class HarborTest {
 		assertThat(harbor.getTtl()).isEqualTo(TEST_TTL);
 		assertThat(harbor.getPeriod()).isEqualTo(TEST_PERIOD);
 		assertThat(harbor.getTimeout()).isEqualTo(TEST_TIMEOUT);
+		assertThat(harbor.getPeer()).isEqualTo(TEST_PEER);
 	}
 
 	/**
@@ -147,5 +157,6 @@ public class HarborTest {
 		assertThat(harbor.getTtl()).isEqualTo(Harbor.DEFAULT_TTL);
 		assertThat(harbor.getPeriod()).isEqualTo(Harbor.DEFAULT_PERIOD);
 		assertThat(harbor.getTimeout()).isEqualTo(Harbor.DEFAULT_TIMEOUT);
+		assertThat(harbor.getPeer()).isEqualTo(TEST_PEER);
 	}
 }

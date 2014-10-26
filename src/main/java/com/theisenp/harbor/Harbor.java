@@ -1,10 +1,18 @@
 package com.theisenp.harbor;
 
+import static com.google.common.util.concurrent.MoreExecutors.listeningDecorator;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+
 import java.util.HashSet;
 import java.util.Set;
 
+import lcm.lcm.LCM;
+
 import org.joda.time.Duration;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.theisenp.harbor.lcm.InitializeLcm;
 import com.theisenp.harbor.utils.HarborUtils;
 
 /**
@@ -24,8 +32,11 @@ public class Harbor {
 	private final int ttl;
 	private final Duration period;
 	private final Duration timeout;
+	private final Peer peer;
 
+	private final ListeningExecutorService executor = listeningDecorator(newSingleThreadExecutor());
 	private final Set<Listener> listeners = new HashSet<>();
+	private final ListenableFuture<LCM> lcm;
 
 	/**
 	 * @param address
@@ -34,18 +45,23 @@ public class Harbor {
 	 * @param periodMillis
 	 * @param timeoutMillis
 	 */
-	public Harbor(String address, int port, int ttl, Duration period, Duration timeout) {
+	public Harbor(String address, int port, int ttl, Duration period, Duration timeout, Peer peer) {
 		this.address = address;
 		this.port = port;
 		this.ttl = ttl;
 		this.period = period;
 		this.timeout = timeout;
+		this.peer = peer;
 
+		// Validate the parameters
 		HarborUtils.validateAddress(address);
 		HarborUtils.validatePort(port);
 		HarborUtils.validateTtl(ttl);
 		HarborUtils.validatePeriod(period);
 		HarborUtils.validateTimeout(timeout);
+
+		// Initialize the LCM instance on a background thread
+		lcm = executor.submit(new InitializeLcm(address, port, ttl));
 	}
 
 	/**
@@ -102,6 +118,27 @@ public class Harbor {
 	public Duration getTimeout() {
 		return timeout;
 	}
+	
+	/**
+	 * @return
+	 */
+	public Peer getPeer() {
+		return peer;
+	}
+
+	/**
+	 * TODO
+	 */
+	public void open() {
+		// TODO: Kick off publish
+	}
+
+	/**
+	 * TODO
+	 */
+	public void close() {
+
+	}
 
 	/**
 	 * Notifies all registered listeners of the connected peer
@@ -150,6 +187,7 @@ public class Harbor {
 		private int ttl = DEFAULT_TTL;
 		private Duration period = DEFAULT_PERIOD;
 		private Duration timeout = DEFAULT_TIMEOUT;
+		private Peer peer;
 
 		/**
 		 * 
@@ -166,6 +204,7 @@ public class Harbor {
 			this.ttl = other.ttl;
 			this.period = other.period;
 			this.timeout = other.timeout;
+			this.peer = other.peer;
 		}
 
 		/**
@@ -219,6 +258,15 @@ public class Harbor {
 		}
 
 		/**
+		 * @param peer
+		 * @return This instance
+		 */
+		public Builder peer(Peer peer) {
+			this.peer = peer;
+			return this;
+		}
+
+		/**
 		 * Clears any previously set parameters
 		 * 
 		 * @return This instance
@@ -229,6 +277,7 @@ public class Harbor {
 			ttl = DEFAULT_TTL;
 			period = DEFAULT_PERIOD;
 			timeout = DEFAULT_TIMEOUT;
+			peer = null;
 			return this;
 		}
 
@@ -238,7 +287,20 @@ public class Harbor {
 		 * @return
 		 */
 		public Harbor build() {
-			return new Harbor(address, port, ttl, period, timeout);
+			validate();
+			return new Harbor(address, port, ttl, period, timeout, peer);
+		}
+
+		/**
+		 * Verifies that a valid {@link Harbor} can be produced from the current
+		 * state
+		 */
+		private void validate() {
+			// Check the peer
+			if(peer == null) {
+				String message = "You must provide a peer";
+				throw new IllegalStateException(message);
+			}
 		}
 	}
 
