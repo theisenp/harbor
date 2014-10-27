@@ -38,6 +38,8 @@ import com.theisenp.harbor.Peer.Status;
  * @author patrick.theisen
  */
 public class SubscriberTest {
+	private static final Peer TEST_SELF = mockPeer(0, Status.ACTIVE);
+
 	private ListeningScheduledExecutorService executor;
 
 	@Rule
@@ -55,8 +57,8 @@ public class SubscriberTest {
 
 	@Test
 	public void testMessageOnWrongChannel() {
-		Peer peer = mockPeer(0, Status.CONNECTED);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Peer peer = mockPeer(1, Status.CONNECTED);
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		thrown.expect(RuntimeException.class);
 		subscriber.messageReceived(null, PEER_CHANNEL + "-invalid", wrap(toMessage(peer)));
@@ -64,19 +66,32 @@ public class SubscriberTest {
 
 	@Test
 	public void testMessageWithInvalidFormat() {
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		thrown.expect(RuntimeException.class);
 		subscriber.messageReceived(null, PEER_CHANNEL, new LCMDataInputStream(new byte[0]));
 	}
 
 	@Test
-	public void testAddSinglePeer() {
+	public void testMessageFromSelf() {
 		Listener listener = mock(Listener.class);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		subscriber.addListener(listener);
-		Peer peer = mockPeer(0, Status.CONNECTED);
+		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(TEST_SELF)));
+
+		assertThat(subscriber.getPeers()).isEmpty();
+		verify(listener, times(0)).onConnected(any(Peer.class));
+		verify(listener, times(0)).onActive(any(Peer.class));
+	}
+
+	@Test
+	public void testAddSinglePeer() {
+		Listener listener = mock(Listener.class);
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
+
+		subscriber.addListener(listener);
+		Peer peer = mockPeer(1, Status.CONNECTED);
 		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
 
 		assertThat(subscriber.getPeers()).containsOnly(asActive(peer));
@@ -87,11 +102,11 @@ public class SubscriberTest {
 	@Test
 	public void testAddMultiplePeers() {
 		Listener listener = mock(Listener.class);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		subscriber.addListener(listener);
 		List<Peer> peers = new ArrayList<>();
-		for(int i = 0; i < 10; i++) {
+		for(int i = 1; i <= 10; i++) {
 			Peer peer = mockPeer(i, Status.CONNECTED);
 			subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
 			peers.add(peer);
@@ -107,9 +122,9 @@ public class SubscriberTest {
 
 	@Test
 	public void testUpdateActive() {
-		Peer peer = mockPeer(0, Status.CONNECTED);
+		Peer peer = mockPeer(1, Status.CONNECTED);
 		Listener listener = mock(Listener.class);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
 		subscriber.addListener(listener);
@@ -122,8 +137,8 @@ public class SubscriberTest {
 
 	@Test
 	public void testUpdateInactive() throws InterruptedException {
-		Peer peer = mockPeer(0, Status.CONNECTED);
-		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10));
+		Peer peer = mockPeer(1, Status.CONNECTED);
+		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10), TEST_SELF);
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
@@ -148,9 +163,9 @@ public class SubscriberTest {
 
 	@Test
 	public void testRemoveListener() {
-		Peer peer = mockPeer(0, Status.CONNECTED);
+		Peer peer = mockPeer(1, Status.CONNECTED);
 		Listener listener = mock(Listener.class);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
 		subscriber.addListener(listener);
 		subscriber.removeListener(listener);
@@ -162,8 +177,8 @@ public class SubscriberTest {
 
 	@Test
 	public void testTimeoutInactive() throws InterruptedException {
-		Peer peer = mockPeer(0, Status.CONNECTED);
-		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10));
+		Peer peer = mockPeer(1, Status.CONNECTED);
+		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10), TEST_SELF);
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
@@ -182,8 +197,8 @@ public class SubscriberTest {
 
 	@Test
 	public void testTimeoutDisconnected() throws InterruptedException {
-		Peer peer = mockPeer(0, Status.CONNECTED);
-		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10));
+		Peer peer = mockPeer(1, Status.CONNECTED);
+		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10), TEST_SELF);
 
 		final CountDownLatch latch = new CountDownLatch(1);
 		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
@@ -202,9 +217,9 @@ public class SubscriberTest {
 
 	@Test
 	public void testClear() {
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1));
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
 
-		for(int i = 0; i < 10; i++) {
+		for(int i = 1; i <= 10; i++) {
 			Peer peer = mockPeer(i, Status.CONNECTED);
 			subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
 		}

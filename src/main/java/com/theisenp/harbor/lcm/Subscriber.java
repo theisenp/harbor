@@ -35,14 +35,17 @@ public class Subscriber implements LCMSubscriber {
 	private final Map<String, Future<?>> timeouts = new HashMap<>();
 	private final Set<Listener> listeners = new HashSet<>();
 	private final long delay;
+	private final String self;
 
 	/**
 	 * @param executor
 	 * @param timeout
+	 * @param self
 	 */
-	public Subscriber(ListeningScheduledExecutorService executor, Duration timeout) {
+	public Subscriber(ListeningScheduledExecutorService executor, Duration timeout, Peer self) {
 		this.executor = executor;
 		this.delay = timeout.getMillis();
+		this.self = self.getId();
 	}
 
 	/**
@@ -111,7 +114,13 @@ public class Subscriber implements LCMSubscriber {
 	 * @param message
 	 */
 	private void handlePeerMessage(PeerMessage message) {
+		// Ignore our own updates
 		Peer peer = PeerUtils.fromMessage(message, Status.ACTIVE);
+		if(peer.getId().equals(self)) {
+			return;
+		}
+
+		// Add or update the peer
 		synchronized(peers) {
 			if(!peers.containsKey(peer.getId())) {
 				add(peer);

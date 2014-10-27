@@ -70,7 +70,7 @@ public class Harbor {
 		executor = listeningDecorator(newSingleThreadScheduledExecutor());
 		lcm = executor.submit(new Initialize(address, port, ttl));
 		publisher = new Publisher(executor, period, self);
-		subscriber = new Subscriber(executor, timeout);
+		subscriber = new Subscriber(executor, timeout, self);
 	}
 
 	/**
