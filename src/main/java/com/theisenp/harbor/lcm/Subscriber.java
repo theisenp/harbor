@@ -54,7 +54,7 @@ public class Subscriber implements LCMSubscriber {
 	 * 
 	 * @param listener
 	 */
-	public void addListener(Listener listener) {
+	public synchronized void addListener(Listener listener) {
 		listeners.add(listener);
 	}
 
@@ -64,30 +64,26 @@ public class Subscriber implements LCMSubscriber {
 	 * 
 	 * @param listener
 	 */
-	public void removeListener(Listener listener) {
+	public synchronized void removeListener(Listener listener) {
 		listeners.remove(listener);
 	}
 
 	/**
 	 * Clear all known peers
 	 */
-	public void clear() {
-		synchronized(peers) {
-			peers.clear();
-			for(Future<?> timeout : timeouts.values()) {
-				timeout.cancel(true);
-			}
-			timeouts.clear();
+	public synchronized void clear() {
+		peers.clear();
+		for(Future<?> timeout : timeouts.values()) {
+			timeout.cancel(true);
 		}
+		timeouts.clear();
 	}
 
 	/**
 	 * @return The current set of known peers
 	 */
-	public Set<Peer> getPeers() {
-		synchronized(peers) {
-			return new HashSet<>(peers.values());
-		}
+	public synchronized Set<Peer> getPeers() {
+		return new HashSet<>(peers.values());
 	}
 
 	@Override
@@ -121,7 +117,7 @@ public class Subscriber implements LCMSubscriber {
 		}
 
 		// Add or update the peer
-		synchronized(peers) {
+		synchronized(this) {
 			if(!peers.containsKey(peer.getId())) {
 				add(peer);
 			}
@@ -148,7 +144,7 @@ public class Subscriber implements LCMSubscriber {
 	 * Notifies all registered listeners of the connected peer
 	 */
 	private void notifyConnected(Peer peer) {
-		for(Listener listener : listeners) {
+		for(Listener listener : new HashSet<>(listeners)) {
 			listener.onConnected(peer);
 		}
 	}
@@ -157,7 +153,7 @@ public class Subscriber implements LCMSubscriber {
 	 * Notifies all registered listeners of the active peer
 	 */
 	private void notifyActive(Peer peer) {
-		for(Listener listener : listeners) {
+		for(Listener listener : new HashSet<>(listeners)) {
 			listener.onActive(peer);
 		}
 	}
@@ -166,7 +162,7 @@ public class Subscriber implements LCMSubscriber {
 	 * Notifies all registered listeners of the inactive peer
 	 */
 	private void notifyInactive(Peer peer) {
-		for(Listener listener : listeners) {
+		for(Listener listener : new HashSet<>(listeners)) {
 			listener.onInactive(peer);
 		}
 	}
@@ -175,7 +171,7 @@ public class Subscriber implements LCMSubscriber {
 	 * Notifies all registered listeners of the disconnected peer
 	 */
 	private void notifyDisconnected(Peer peer) {
-		for(Listener listener : listeners) {
+		for(Listener listener : new HashSet<>(listeners)) {
 			listener.onDisconnected(peer);
 		}
 	}
@@ -222,7 +218,7 @@ public class Subscriber implements LCMSubscriber {
 
 		@Override
 		public void run() {
-			synchronized(peers) {
+			synchronized(Subscriber.this) {
 				Peer peer = new Builder(peers.get(id)).status(Status.INACTIVE).build();
 				peers.put(id, peer);
 				timeouts.put(id, executor.schedule(new Disconnect(id), delay, MILLISECONDS));
@@ -248,7 +244,7 @@ public class Subscriber implements LCMSubscriber {
 
 		@Override
 		public void run() {
-			synchronized(peers) {
+			synchronized(Subscriber.this) {
 				Peer peer = new Builder(peers.get(id)).status(Status.DISCONNECTED).build();
 				peers.remove(id);
 				timeouts.remove(id);

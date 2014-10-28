@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -162,20 +163,6 @@ public class SubscriberTest {
 	}
 
 	@Test
-	public void testRemoveListener() {
-		Peer peer = mockPeer(1, Status.CONNECTED);
-		Listener listener = mock(Listener.class);
-		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
-
-		subscriber.addListener(listener);
-		subscriber.removeListener(listener);
-		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
-
-		verify(listener, times(0)).onConnected(any(Peer.class));
-		verify(listener, times(0)).onActive(any(Peer.class));
-	}
-
-	@Test
 	public void testTimeoutInactive() throws InterruptedException {
 		Peer peer = mockPeer(1, Status.CONNECTED);
 		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10), TEST_SELF);
@@ -226,6 +213,59 @@ public class SubscriberTest {
 
 		subscriber.clear();
 		assertThat(subscriber.getPeers()).isEmpty();
+	}
+
+	/**
+	 * The goal of this test is to make sure that listeners are handled
+	 * correctly. Buggy implementations may throw a
+	 * {@link ConcurrentModificationException} if a listener is added while the
+	 * subscriber is executing a notification (either because a callback adds
+	 * the listener or because a listener is added on a different thread).
+	 * 
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testAddListenerInCallback() throws InterruptedException {
+		Peer first = mockPeer(1, Status.CONNECTED);
+		final Peer second = mockPeer(2, Status.CONNECTED);
+		final Subscriber subscriber = new Subscriber(executor, Duration.millis(10), TEST_SELF);
+
+		final CountDownLatch latch = new CountDownLatch(1);
+		final Listener listener = new Listener.Adapter() {
+			@Override
+			public void onConnected(Peer peer) {
+				latch.countDown();
+			}
+		};
+
+		for(int i = 0; i < 2; i++) {
+			subscriber.addListener(new Listener.Adapter() {
+				@Override
+				public void onConnected(Peer peer) {
+					subscriber.addListener(listener);
+					subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(second)));
+				}
+			});
+		}
+
+		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(first)));
+		if(!latch.await(1, TimeUnit.SECONDS)) {
+			fail("The chained listener was never notified");
+		}
+	}
+
+	@Test
+	public void testRemoveListener() {
+		Peer peer = mockPeer(1, Status.CONNECTED);
+		Listener listener = mock(Listener.class);
+		Subscriber subscriber = new Subscriber(executor, Duration.standardSeconds(1), TEST_SELF);
+
+		subscriber.addListener(listener);
+		subscriber.removeListener(listener);
+		subscriber.messageReceived(null, PEER_CHANNEL, wrap(toMessage(peer)));
+
+		verify(listener, times(0)).onConnected(any(Peer.class));
+		verify(listener, times(0)).onActive(any(Peer.class));
 	}
 
 	/**
