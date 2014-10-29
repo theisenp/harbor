@@ -12,6 +12,7 @@ import org.joda.time.Duration;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.theisenp.harbor.filters.Filter;
 import com.theisenp.harbor.lcm.Initialize;
 import com.theisenp.harbor.lcm.Publisher;
 import com.theisenp.harbor.lcm.Subscribe;
@@ -157,6 +158,20 @@ public class Harbor {
 		Futures.transform(lcm, new Unsubscribe(subscriber));
 		subscriber.clear();
 		publishTask.cancel(true);
+	}
+
+	/**
+	 * @param filter
+	 * @return A {@link ListenableFuture} completed by the first {@link Peer}
+	 * that passes the given {@link Filter}
+	 */
+	public ListenableFuture<Peer> find(Filter filter) {
+		try {
+			return new FindPeer(filter).apply(this);
+		}
+		catch(Exception exception) {
+			throw new RuntimeException(exception);
+		}
 	}
 
 	/**
