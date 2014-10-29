@@ -8,7 +8,7 @@ Usage
 
 ### Peer ###
 
-A peer is a description of a Harbor client and the protocols it supports. Each peer has:
+A `Peer` is a description of a Harbor client and the protocols it supports. Each peer has:
 
 - *ID*: A unique identifier. Multiple instances of the same client should have different IDs.
 - *Type*: A not necessarily unique identifier. Multiple instances of the same client may have the same type.
@@ -16,9 +16,23 @@ A peer is a description of a Harbor client and the protocols it supports. Each p
 - *Description*: An optional explanation of the peer, mainly for logging or monitoring.
 - *Protocols*: A map of protocols and their corresponding addresses.
 
+### Filter ###
+
+`Filter` is an interface for objects that pass or fail peers based on some internal logic. Harbor provides some common filters right out of the box:
+
+- `Filter.PASS` - Passes all peers
+- `Filter.FAIL` - Fails all peers
+- `TypeFilter` - Passes peers of a particular type
+- `StatusFilter` - Passes peers with a particular status
+- `ProtocolFilter` - Passes peers that support a particular protocol
+- `ConjunctiveFilter` - Passes peers that pass all of a set of multiple filters
+- `DisjunctiveFilter` - Passes peers that pass any of a set of multiple filters
+
+
 ### Example ###
 
 ```java
+// Describe your client and the protocols it supports
 Peer self = new Peer.Builder()
 		.id(UUID.randomUUID().toString())
 		.type("example")
@@ -28,6 +42,7 @@ Peer self = new Peer.Builder()
 		.protocol("TCP", "192.168.0.1:5555")
 		.build();
 
+// Configure a harbor instance for your client
 Harbor harbor = new Harbor.Builder()
 		.address("239.255.76.67")
 		.port(7667)
@@ -36,7 +51,8 @@ Harbor harbor = new Harbor.Builder()
 		.timeout(Duration.standardSeconds(2))
 		.self(self)
 		.build();
-		
+
+// Register a listener to log peer events		
 harbor.addListener(new Harbor.Listener() {
 	@Override
 	public void onConnected(Peer peer) {
@@ -59,9 +75,19 @@ harbor.addListener(new Harbor.Listener() {
 	}
 });
 
+// Register an asynchronous callback for a particular sort of peer
+ListenableFuture<Peer> future = harbor.find(new TypeFilter("example"));
+Futures.transform(future, new Function<Peer, Void>() {
+	@Override
+	public Void apply(Peer peer) {
+		// TODO: Connect to the peer using a mutually supported protocol
+		return null;
+	}
+});
+
+// Start the peer discovery
 harbor.open();
 ```
-
 
 Build
 -----
